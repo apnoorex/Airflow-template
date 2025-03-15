@@ -1,2 +1,1 @@
-# Airflow-template
-Using Apache Airflow example
+Apache Airflow example

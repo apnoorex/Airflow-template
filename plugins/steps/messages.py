@@ -6,19 +6,19 @@ def send_telegram_failure_message(context):
     dag = context['task_instance_key_str']
     run_id = context['run_id']
     
-    message = f'Исполнение DAG {dag} с id={run_id} не выполнено!'
+    message = f'DAG {dag} с id={run_id}: unsuccessful!'
     hook.send_message({
         'chat_id': 'run_id',
         'text': message
     })
 
 def send_telegram_success_message(context):
-    hook = TelegramHook(token='{вставьте ваш token_id}', chat_id='{вставьте ваш chat_id}')
+    hook = TelegramHook(token='{enter your token_id}', chat_id='{enter your chat_id}')
     dag = context['dag'].dag_id
     run_id = context['run_id']
     
-    message = f'Исполнение DAG {dag} с id={run_id} прошло успешно!'
+    message = f'DAG {dag} с id={run_id}: uccessful!'
     hook.send_message({
-        'chat_id': '{вставьте ваш chat_id}',
+        'chat_id': '{Enter your chat_id}',
         'text': message
     })

@@ -1,16 +1,16 @@
-# dags/churn.py
+# dags/outflow.py
 
 import pendulum
 from airflow.decorators import dag, task
 
 @dag(
-    dag_id='churn',
+    dag_id='outflow',
     schedule='@once',
     start_date=pendulum.datetime(2023, 1, 1, tz="UTC"),
     catchup=False,
     tags=["ETL"]
 )
-def prepare_churn_dataset():
+def prepare_outflow_dataset():
     import pandas as pd
     import numpy as np
     from airflow.providers.postgres.hooks.postgres import PostgresHook
@@ -24,8 +24,8 @@ def prepare_churn_dataset():
         conn = hook.get_sqlalchemy_engine()
 
         metadata = MetaData()
-        users_churn_table = Table(
-            'users_churn',
+        users_outflow_table = Table(
+            'users_outflow',
             metadata,
             Column('id', Integer, primary_key=True),
             Column('customer_id', String),
@@ -45,13 +45,11 @@ def prepare_churn_dataset():
             Column('streaming_movies', String),
             Column('gender', String),
             Column('senior_citizen', Integer),
-            Column('partner', String),
             Column('dependents', String),
-            Column('multiple_lines', String),
             Column('target', Integer),
             UniqueConstraint('customer_id', name='unique_custome_id')
         )
-        if not sqlalchemy.inspect(conn).has_table(users_churn_table.name): 
+        if not sqlalchemy.inspect(conn).has_table(users_outflow_table.name): 
             metadata.create_all(conn)
 
     @task()
@@ -63,12 +61,10 @@ def prepare_churn_dataset():
         select
             c.customer_id, c.begin_date, c.end_date, c.type, c.paperless_billing, c.payment_method, c.monthly_charges, c.total_charges,
             i.internet_service, i.online_security, i.online_backup, i.device_protection, i.tech_support, i.streaming_tv, i.streaming_movies,
-            p.gender, p.senior_citizen, p.partner, p.dependents,
-            ph.multiple_lines
+            p.gender, p.senior_citizen, p.dependents,
         from contracts as c
         left join internet as i on i.customer_id = c.customer_id
         left join personal as p on p.customer_id = c.customer_id
-        left join phone as ph on ph.customer_id = c.customer_id
         """
         data = pd.read_sql(sql, conn)
         conn.close()
@@ -84,7 +80,7 @@ def prepare_churn_dataset():
     def load(data: pd.DataFrame):
         hook = PostgresHook('destination_db')
         hook.insert_rows(
-            table="users_churn",
+            table="users_outflow",
             replace=True,
             target_fields=data.columns.tolist(),
             replace_index=['customer_id'],
@@ -95,4 +91,5 @@ def prepare_churn_dataset():
     data = extract()
     transformed_data = transform(data)
     load(transformed_data)
-prepare_churn_dataset()  
+
+prepare_outflow_dataset()

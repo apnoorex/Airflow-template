@@ -1,13 +1,13 @@
-# dags/alt_churn.py
+# dags/outflow_alternative.py
 
 from airflow import DAG
 import pendulum
 from airflow.operators.python import PythonOperator
-from steps.churn import create_table, extract, transform, load
+from steps.outflow import create_table, extract, transform, load
 from steps.messages import send_telegram_success_message, send_telegram_failure_message
 import pandas as pd
 with DAG(
-    dag_id='alt_churn',
+    dag_id='outflow_alternative',
     schedule='@once',
     on_success_callback=send_telegram_success_message,
     on_failure_callback=send_telegram_failure_message,

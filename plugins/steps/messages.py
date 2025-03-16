@@ -17,7 +17,7 @@ def send_telegram_success_message(context):
     dag = context['dag'].dag_id
     run_id = context['run_id']
     
-    message = f'DAG {dag} с id={run_id}: uccessful!'
+    message = f'DAG {dag} с id={run_id}: successful!'
     hook.send_message({
         'chat_id': '{Enter your chat_id}',
         'text': message
